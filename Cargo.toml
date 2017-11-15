@@ -7,10 +7,17 @@ authors = ["Michael Sproul <micsproul@gmail.com>"]
 iron = "0.5"
 router = "0.5"
 urlencoded = "0.5"
+mount = "0.3"
+staticfile = "0.4"
+persistent = "0.3"
 handlebars = "0.26"
 handlebars-iron = "0.25"
-aus_senate = { git = "https://github.com/michaelsproul/aus_senate.git" }
 serde = "1.0"
 serde_json = "1.0"
 serde_derive = "1.0"
 csv = "1.0.0-beta.3"
+log = "0.3"
+env_logger = "0.4"
+futures-cpupool = "0.1"
+futures = "0.1"
+aus_senate = { git = "https://github.com/michaelsproul/aus_senate.git" }

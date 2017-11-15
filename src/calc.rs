@@ -41,12 +41,12 @@ pub fn load_candidate_data(data_dir: &Path, state: State) -> Result<CandidateDat
     })
 }
 
-pub fn run_election<'a>(
+pub fn run_election(
     data_dir: &Path,
     state: State,
-    candidates: &'a CandidateData,
+    candidates: &CandidateData,
     disqualified_candidates: &[CandidateId],
-) -> Result<Senate<'a>, Box<Error>>
+) -> Result<Senate, Box<Error>>
 {
     let prefs_file = preferences_file(data_dir, state)?;
 
