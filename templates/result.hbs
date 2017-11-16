@@ -10,10 +10,10 @@
 <tbody>
 {{#each elected}}
   <tr>
-    <td>{{@index}}</td>
-    <td>{{this.0.other_names}} {{this.0.surname}}</td>
-    <td>{{this.0.party}}</td>
-    <td>{{this.1}}</td>
+    <td>{{this.position}}</td>
+    <td>{{this.candidate.other_names}} {{this.candidate.surname}}</td>
+    <td>{{this.candidate.party}}</td>
+    <td>{{this.vote_tally}}</td>
   </tr>
 {{/each}}
 </tbody>

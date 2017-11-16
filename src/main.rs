@@ -63,8 +63,15 @@ fn election_setup_page(req: &mut Request) -> IronResult<Response> {
 }
 
 #[derive(Serialize, Debug)]
+struct ElectedSenator {
+    position: usize,
+    candidate: Candidate,
+    vote_tally: String,
+}
+
+#[derive(Serialize, Debug)]
 struct ResultPageData {
-    elected: Vec<(Candidate, String)>,
+    elected: Vec<ElectedSenator>,
     tied: bool,
 }
 
@@ -123,8 +130,16 @@ fn election_result_page(req: &mut Request) -> IronResult<Response> {
 
     println!("Result: {:?}", result);
 
+    let elected = result.senators.into_iter().enumerate().map(|(i, (c, t))| {
+        ElectedSenator {
+            position: i + 1,
+            candidate: c,
+            vote_tally: format!("{}", t),
+        }
+    }).collect();
+
     let result_data = ResultPageData {
-        elected: result.senators.into_iter().map(|(c, t)| (c, format!("{}", t))).collect(),
+        elected,
         tied: result.tied,
     };
 
