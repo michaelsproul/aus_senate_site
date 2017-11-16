@@ -23,9 +23,9 @@ fn preferences_file(data_dir: &Path, state: State) -> io::Result<File> {
 }
 
 pub struct CandidateData {
-    candidates: CandidateMap,
-    candidate_list: Vec<CandidateId>,
-    group_list: Vec<Group>,
+    pub candidates: CandidateMap,
+    pub candidate_list: Vec<CandidateId>,
+    pub group_list: Vec<Group>,
 }
 
 pub fn load_candidate_data(data_dir: &Path, state: State) -> Result<CandidateData, Box<Error>> {

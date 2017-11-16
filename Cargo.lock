@@ -9,6 +9,7 @@ dependencies = [
 [[package]]
 name = "aus_senate"
 version = "0.2.0"
+source = "git+https://github.com/michaelsproul/aus_senate.git#c7bec002c84567e18bbad1f507bd91c90f1eab2e"
 dependencies = [
  "csv 1.0.0-beta.5 (registry+https://github.com/rust-lang/crates.io-index)",
  "env_logger 0.4.3 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -442,7 +443,7 @@ dependencies = [
 name = "senate_website"
 version = "0.1.0"
 dependencies = [
- "aus_senate 0.2.0",
+ "aus_senate 0.2.0 (git+https://github.com/michaelsproul/aus_senate.git)",
  "csv 1.0.0-beta.5 (registry+https://github.com/rust-lang/crates.io-index)",
  "env_logger 0.4.3 (registry+https://github.com/rust-lang/crates.io-index)",
  "futures 0.1.17 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -689,6 +690,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [metadata]
 "checksum aho-corasick 0.6.3 (registry+https://github.com/rust-lang/crates.io-index)" = "500909c4f87a9e52355b26626d890833e9e1d53ac566db76c36faa984b889699"
+"checksum aus_senate 0.2.0 (git+https://github.com/michaelsproul/aus_senate.git)" = "<none>"
 "checksum base64 0.6.0 (registry+https://github.com/rust-lang/crates.io-index)" = "96434f987501f0ed4eb336a411e0631ecd1afa11574fe148587adc4ff96143c9"
 "checksum bitflags 0.7.0 (registry+https://github.com/rust-lang/crates.io-index)" = "aad18937a628ec6abcd26d1489012cc0e18c21798210f491af69ded9b881106d"
 "checksum bodyparser 0.5.0 (registry+https://github.com/rust-lang/crates.io-index)" = "6928e817538b74a73d1dd6e9a942a2a35c632a597b6bb14fd009480f859a6bf5"

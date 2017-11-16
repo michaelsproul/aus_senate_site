@@ -21,7 +21,7 @@ use staticfile::Static;
 use mount::Mount;
 use urlencoded::UrlEncodedBody;
 use hbs::{Template, HandlebarsEngine, DirectorySource};
-use aus_senate::candidate::Candidate;
+use aus_senate::candidate::{Candidate, CandidateName, CandidateId, CandidateMap, find_candidates_with_names};
 use aus_senate::senate_result::Senate;
 use futures_cpupool::CpuPool;
 use futures::Future;
@@ -40,7 +40,7 @@ fn index(_: &mut Request) -> IronResult<Response> {
 
 #[derive(Serialize, Debug)]
 struct SetupPageData {
-    state_name: String,
+    title: String,
 }
 
 fn get_query_state(req: &mut Request) -> IronResult<State> {
@@ -52,8 +52,13 @@ fn get_query_state(req: &mut Request) -> IronResult<State> {
 fn election_setup_page(req: &mut Request) -> IronResult<Response> {
     let state = get_query_state(req)?;
 
+    let page_data = SetupPageData {
+        title: format!("{} Senate Election (2016)", state.to_str()),
+    };
+
     let mut resp = Response::new();
-    resp.set_mut(Template::new("setup", SetupPageData { state_name: state.to_str().to_owned() })).set_mut(status::Ok);
+    resp.set_mut(Template::new("setup", page_data))
+        .set_mut(status::Ok);
     Ok(resp)
 }
 
@@ -63,11 +68,44 @@ struct ResultPageData {
     tied: bool,
 }
 
+fn parse_disqualified(
+    disqualified_str: String,
+    candidate_map: &CandidateMap,
+) -> Result<Vec<CandidateId>, ()> {
+    let full_names = disqualified_str.split("\r\n");
+    let mut candidate_names = vec![];
+    for name in full_names {
+        let split_names: Vec<&str> = name.rsplitn(2, " ").collect();
+        if split_names.len() != 2 {
+            return Err(());
+        }
+        candidate_names.push(CandidateName {
+            first: split_names[1].to_owned(),
+            last: split_names[0].to_owned(),
+        });
+    }
+
+    let ids = find_candidates_with_names(&candidate_names, candidate_map);
+
+    if ids.len() == candidate_names.len() {
+        Ok(ids)
+    } else {
+        Err(())
+    }
+}
+
 fn election_result_page(req: &mut Request) -> IronResult<Response> {
     let state = get_query_state(req)?;
+
     let form_data = {
         req.get_ref::<UrlEncodedBody>().expect("missing form body").clone()
     };
+    let disqualified_str = form_data.get("disqualified")
+        .and_then(|v| v.first())
+        .cloned()
+        // FIXME: unwrap_or here.
+        .unwrap();
+
     let cpu_pool = req.get::<persistent::Read<JobPool>>().expect("cpu pool not registered");
 
     println!("Form data, parse this: {:?}", form_data);
@@ -76,7 +114,8 @@ fn election_result_page(req: &mut Request) -> IronResult<Response> {
     let f = cpu_pool.spawn_fn(move || {
         let data_dir = Path::new("data");
         let candidate_data = load_candidate_data(data_dir, state).unwrap();
-        let res: Result<Senate, ()> = Ok(run_election(data_dir, state, &candidate_data, &[]).unwrap());
+        let disqualified = parse_disqualified(disqualified_str, &candidate_data.candidates).unwrap();
+        let res: Result<Senate, ()> = Ok(run_election(data_dir, state, &candidate_data, &disqualified).unwrap());
         res
     });
 
