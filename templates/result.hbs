@@ -1,5 +1,20 @@
-<ol>
+<table class="pure-table pure-table-horizontal">
+<thead>
+  <tr>
+    <th>#</th>
+    <th>Name</th>
+    <th>Party</th>
+    <th>Vote Count</th>
+  </tr>
+</thead>
+<tbody>
 {{#each elected}}
-  <li>{{this.0.other_names}} {{this.0.surname}} ({{this.0.party}})</li>
+  <tr>
+    <td>{{@index}}</td>
+    <td>{{this.0.other_names}} {{this.0.surname}}</td>
+    <td>{{this.0.party}}</td>
+    <td>{{this.1}}</td>
+  </tr>
 {{/each}}
-</ol>
+</tbody>
+</table>

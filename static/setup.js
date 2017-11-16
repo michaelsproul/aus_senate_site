@@ -5,11 +5,18 @@ $(document).ready(function() {
             type: "POST",
             data: form.serialize(),
             success: function(response) {
-                $("body").html(response);
-            }
+                $("#content").html(response);
+            },
+            error: function(res, error) {
+                // TODO: better errors once `unwraps` are removed from backend
+                alert("Error. Try again?");
+                location.reload();
+            },
+            // 5 minute timeout should be sufficient
+            timeout: 5 * 60 * 1000,
         });
 
-        form.html("Please wait about a minute while the result computes...");
+        $("#content").html("Please wait about a minute while the result computes...");
 
         return false;
     });

@@ -1,11 +1,17 @@
 {{#*inline "page"}}
-<h1>{{title}}</h1>
-<form method="post">
-  <div>
-    <label for="disqualified">Disqualified Senators</label><br>
+<h1 id="title">{{title}}</h1>
+<div id="content">
+<div id="setup_form">
+<form method="post" class="pure-form pure-form-stacked">
+  <div class="pure-control-group">
+    <label for="disqualified">Disqualified Senators</label>
     <textarea name="disqualified"></textarea>
   </div>
-  <button>Run Election</button>
+  <div class="pure-controls">
+    <button class="pure-button pure-button-primary">Run Election</button>
+  </div>
 </form>
+</div>
+</div>
 {{/inline}}
 {{~> base}}

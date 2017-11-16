@@ -72,7 +72,7 @@ fn parse_disqualified(
     disqualified_str: String,
     candidate_map: &CandidateMap,
 ) -> Result<Vec<CandidateId>, ()> {
-    let full_names = disqualified_str.split("\r\n");
+    let full_names = disqualified_str.split("\r\n").filter(|s| !s.is_empty());
     let mut candidate_names = vec![];
     for name in full_names {
         let split_names: Vec<&str> = name.rsplitn(2, " ").collect();
@@ -167,4 +167,16 @@ fn main() {
     chain.link_after(hbse);
 
     Iron::new(chain).http("localhost:3001").unwrap();
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    use std::collections::HashMap;
+
+    #[test]
+    fn empty_disqualified_str() {
+        let map = HashMap::new();
+        assert_eq!(parse_disqualified("".into(), &map), Ok(vec![]));
+    }
 }
