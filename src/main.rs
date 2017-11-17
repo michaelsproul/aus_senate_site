@@ -22,7 +22,6 @@ use mount::Mount;
 use urlencoded::UrlEncodedBody;
 use hbs::{Template, HandlebarsEngine, DirectorySource};
 use aus_senate::candidate::{Candidate, CandidateName, CandidateId, CandidateMap, find_candidates_with_names};
-use aus_senate::senate_result::Senate;
 use futures_cpupool::CpuPool;
 use futures::Future;
 
@@ -32,9 +31,21 @@ use state::State;
 mod calc;
 mod state;
 
+#[derive(Serialize, Debug)]
+struct IndexPageData {
+    title: &'static str,
+    states: Vec<&'static str>,
+}
+
 fn index(_: &mut Request) -> IronResult<Response> {
+    let data = IndexPageData {
+        title: "Australian Senate Simulator 3000",
+        states: State::all_states().iter().map(State::to_str).collect(),
+    };
+
     let mut resp = Response::new();
-    resp.set_mut(Template::new("index", ())).set_mut(status::Ok);
+    resp.set_mut(Template::new("index", data))
+        .set_mut(status::Ok);
     Ok(resp)
 }
 
@@ -72,13 +83,14 @@ struct ElectedSenator {
 #[derive(Serialize, Debug)]
 struct ResultPageData {
     elected: Vec<ElectedSenator>,
+    disqualified: Vec<CandidateName>,
     tied: bool,
 }
 
 fn parse_disqualified(
     disqualified_str: String,
     candidate_map: &CandidateMap,
-) -> Result<Vec<CandidateId>, ()> {
+) -> Result<(Vec<CandidateName>, Vec<CandidateId>), ()> {
     let full_names = disqualified_str.split("\r\n").filter(|s| !s.is_empty());
     let mut candidate_names = vec![];
     for name in full_names {
@@ -95,7 +107,7 @@ fn parse_disqualified(
     let ids = find_candidates_with_names(&candidate_names, candidate_map);
 
     if ids.len() == candidate_names.len() {
-        Ok(ids)
+        Ok((candidate_names, ids))
     } else {
         Err(())
     }
@@ -121,12 +133,15 @@ fn election_result_page(req: &mut Request) -> IronResult<Response> {
     let f = cpu_pool.spawn_fn(move || {
         let data_dir = Path::new("data");
         let candidate_data = load_candidate_data(data_dir, state).unwrap();
-        let disqualified = parse_disqualified(disqualified_str, &candidate_data.candidates).unwrap();
-        let res: Result<Senate, ()> = Ok(run_election(data_dir, state, &candidate_data, &disqualified).unwrap());
+        let (disq_names, disq_ids) = parse_disqualified(disqualified_str, &candidate_data.candidates).unwrap();
+        let res: Result<_, ()> = Ok((
+            run_election(data_dir, state, &candidate_data, &disq_ids).unwrap(),
+            disq_names
+        ));
         res
     });
 
-    let result = f.wait().expect("eek, something went wrong!");
+    let (result, disqualified) = f.wait().expect("eek, something went wrong!");
 
     println!("Result: {:?}", result);
 
@@ -140,6 +155,7 @@ fn election_result_page(req: &mut Request) -> IronResult<Response> {
 
     let result_data = ResultPageData {
         elected,
+        disqualified,
         tied: result.tied,
     };
 

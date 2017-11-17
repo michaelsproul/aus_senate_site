@@ -47,4 +47,17 @@ impl State {
             _ => 12,
         }
     }
+
+    pub fn all_states() -> Vec<Self> {
+        vec![
+            NSW,
+            VIC,
+            QLD,
+            SA,
+            WA,
+            TAS,
+            NT,
+            ACT
+        ]
+    }
 }

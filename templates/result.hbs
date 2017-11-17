@@ -18,3 +18,12 @@
 {{/each}}
 </tbody>
 </table>
+{{#if disqualified}}
+<p>The following senators were excluded from the calculation, and had their votes transferred
+appropriately.</p>
+<ul>
+{{#each disqualified}}
+  <li>{{this.first}} {{this.last}}</li>
+{{/each}}
+</ul>
+{{/if}}

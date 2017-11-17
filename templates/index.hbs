@@ -1,1 +1,15 @@
-<h1>Hello world!</h1>
+{{#*inline "page"}}
+<h1 id="title">{{title}}</h1>
+<div id="content">
+<p><i>Who gets elected to the Australian senate when half the candidates are
+disqualified for holding foreign citizenship?</i></p>
+<p><b>To begin, choose a state or territory:</b></p>
+<select id="state_select">
+  {{#each states}}
+  <option value="{{this}}">{{this}}</option>
+  {{/each}}
+</select>
+<button id="start_button" class="pure-button pure-button-primary">Go!</button>
+</div>
+{{/inline}}
+{{~> base}}
