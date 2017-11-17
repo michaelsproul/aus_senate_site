@@ -23,6 +23,6 @@ $(document).ready(function() {
 
     $("#start_button").click(function() {
         let state = $("#state_select").val();
-        window.location.pathname = state;
+        location.href = state;
     });
 });
