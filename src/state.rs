@@ -43,7 +43,7 @@ impl State {
 
     pub fn num_senators(&self) -> usize {
         match *self {
-            ACT | NT => 6,
+            ACT | NT => 2,
             _ => 12,
         }
     }
