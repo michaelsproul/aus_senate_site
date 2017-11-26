@@ -11,6 +11,7 @@ extern crate csv;
 extern crate env_logger;
 extern crate futures_cpupool;
 extern crate futures;
+#[macro_use] extern crate derive_error;
 
 use std::path::Path;
 
@@ -27,9 +28,11 @@ use futures::Future;
 
 use calc::{load_candidate_data, run_election};
 use state::State;
+use error::Error::*;
 
 mod calc;
 mod state;
+mod error;
 
 #[derive(Serialize, Debug)]
 struct IndexPageData {
@@ -55,9 +58,10 @@ struct SetupPageData {
 }
 
 fn get_query_state(req: &mut Request) -> IronResult<State> {
-    // FIXME: all these unwraps are pretty bad
-    let state_name = req.extensions.get::<Router>().unwrap().find("state").unwrap();
-    Ok(State::from_str(state_name).unwrap())
+    req.extensions.get::<Router>()
+        .and_then(|qs| qs.find("state"))
+        .and_then(|state_name| State::from_str(state_name))
+        .ok_or(IronError::from(InvalidState))
 }
 
 fn election_setup_page(req: &mut Request) -> IronResult<Response> {
@@ -116,18 +120,16 @@ fn parse_disqualified(
 fn election_result_page(req: &mut Request) -> IronResult<Response> {
     let state = get_query_state(req)?;
 
-    let form_data = {
-        req.get_ref::<UrlEncodedBody>().expect("missing form body").clone()
-    };
-    let disqualified_str = form_data.get("disqualified")
-        .and_then(|v| v.first())
+    let disqualified_str = req.get_ref::<UrlEncodedBody>()
+        .ok()
+        .and_then(|form_data| form_data.get("disqualified"))
+        .and_then(|values| values.first())
         .cloned()
-        // FIXME: unwrap_or here.
-        .unwrap();
+        .unwrap_or_else(String::new);
 
-    let cpu_pool = req.get::<persistent::Read<JobPool>>().expect("cpu pool not registered");
+    println!("Processing request for {}, disqualified: {:?}", state.to_str(), disqualified_str);
 
-    println!("Form data, parse this: {:?}", form_data);
+    let cpu_pool = req.get::<persistent::Read<JobPool>>().map_err(|_| InternalErr)?;
 
     // Run the election computation in the single-threaded pool, so as not to OOM.
     let f = cpu_pool.spawn_fn(move || {
@@ -141,7 +143,7 @@ fn election_result_page(req: &mut Request) -> IronResult<Response> {
         res
     });
 
-    let (result, disqualified) = f.wait().expect("eek, something went wrong!");
+    let (result, disqualified) = f.wait().map_err(|_| InternalErr)?;
 
     println!("Result: {:?}", result);
 

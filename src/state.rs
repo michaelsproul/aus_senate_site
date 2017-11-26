@@ -14,17 +14,17 @@ pub enum State {
 }
 
 impl State {
-    pub fn from_str(state: &str) -> Result<State, ()> {
+    pub fn from_str(state: &str) -> Option<State> {
         match &state.to_uppercase()[..] {
-            "NSW" => Ok(NSW),
-            "VIC" => Ok(VIC),
-            "QLD" => Ok(QLD),
-            "SA" => Ok(SA),
-            "WA" => Ok(WA),
-            "TAS" => Ok(TAS),
-            "NT" => Ok(NT),
-            "ACT" => Ok(ACT),
-            _ => Err(()),
+            "NSW" => Some(NSW),
+            "VIC" => Some(VIC),
+            "QLD" => Some(QLD),
+            "SA" => Some(SA),
+            "WA" => Some(WA),
+            "TAS" => Some(TAS),
+            "NT" => Some(NT),
+            "ACT" => Some(ACT),
+            _ => None,
         }
     }
 

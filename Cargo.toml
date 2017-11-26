@@ -20,4 +20,5 @@ log = "0.3"
 env_logger = "0.4"
 futures-cpupool = "0.1"
 futures = "0.1"
+derive-error = "0.0.4"
 aus_senate = { git = "https://github.com/michaelsproul/aus_senate.git" }
